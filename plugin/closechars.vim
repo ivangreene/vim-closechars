@@ -6,21 +6,25 @@ let g:closechars_lefts = get(g:, 'closechars_lefts', ["'", '"', '[', '{', '<', '
 let g:closechars_rights = get(g:, 'closechars_rights', ["'", '"', ']', '}', '>', ')'])
 let g:closechars_pair_delete = get(g:, 'closechars_pair_delete', 1)
 
-function! closechars#AutoMap()
+function! closechars#Map()
   let c = 0
   while c < len(g:closechars_lefts)
-    exec 'inoremap ' . g:closechars_lefts[c] . '<CR> ' . g:closechars_lefts[c] . '<CR>' . g:closechars_rights[c] . '<Esc>O'
-    exec 'inoremap ' . g:closechars_lefts[c] . g:closechars_lefts[c] . ' ' . g:closechars_lefts[c]
-    if g:closechars_lefts[c] == g:closechars_rights[c]
-      exec 'inoremap <expr> ' . g:closechars_rights[c] . " strpart(getline('.'), col('.')-1, 1) == " . closechars#SafeQuote(g:closechars_rights[c])
-            \ . ' ? "\<Right>" : "' . g:closechars_lefts[c] . g:closechars_rights[c] . '\<Left>"'
+    let l = g:closechars_lefts[c]
+    let r = g:closechars_rights[c]
+    exec 'inoremap ' . l . '<CR> ' . l . '<CR>' . r . '<Esc>O'
+    exec 'inoremap ' . l . l . ' ' . l
+    if l == r
+      exec 'inoremap <expr> ' . r . " strpart(getline('.'), col('.')-1, 1) == " . closechars#SafeQuote(r)
+            \ . ' ? "\<Right>" : ' . closechars#SafeQuote(l . r) . ' . "\<Left>"'
     else
-      exec 'inoremap <expr> ' . g:closechars_rights[c] . " strpart(getline('.'), col('.')-1, 1) == " . closechars#SafeQuote(g:closechars_rights[c])
-            \ . ' ? "\<Right>" : "' . g:closechars_rights[c] . '"'
-      exec 'inoremap ' . g:closechars_lefts[c] . ' ' . g:closechars_lefts[c] . g:closechars_rights[c] . '<Left>'
+      exec 'inoremap ' . l . r . ' ' . l . r
+      exec 'inoremap <expr> ' . r . " strpart(getline('.'), col('.')-1, 1) == " . closechars#SafeQuote(r)
+            \ . ' ? "\<Right>" : ' . closechars#SafeQuote(r)
+      exec 'inoremap ' . l . ' ' . l . r . '<Left>'
     endif
     let c += 1
   endwhile
+
   if len(g:closechars_semicolon_endchars)
     inoremap <expr> ; index(g:closechars_semicolon_endchars,
           \ strpart(getline('.'), col('.')-1, 1)) == -1 ? ";" : "\<Right>;"
@@ -36,60 +40,11 @@ function! closechars#AutoMap()
 endfunction
 
 function! closechars#SafeQuote(char)
-  if a:char == '"'
-    return "'\"'"
+  if a:char == '"' || a:char == '""'
+    return "'" . a:char . "'"
   else
     return '"' . a:char . '"'
   endif
-endfunction
-
-function! closechars#DoMap()
-  " inoremap ' ''<Left>
-  inoremap '<CR> '<CR>'<Esc>O
-  inoremap '' '
-  inoremap <expr> '
-        \ strpart(getline('.'), col('.')-1, 1) == "'" ? "\<Right>" : "''<Left>"
-
-  " inoremap " ""<Left>
-  inoremap "<CR> "<CR>"<Esc>O
-  inoremap "" "
-  inoremap <expr> "
-        \ strpart(getline('.'), col('.')-1, 1) == '"' ? "\<Right>" : '""<Left>'
-
-  inoremap { {}<Left>
-  inoremap {<CR> {<CR>}<Esc>O
-  inoremap {{ {
-  inoremap {} {}
-  inoremap <expr> }
-        \ strpart(getline('.'), col('.')-1, 1) == "}" ? "\<Right>" : "}"
-
-  inoremap ( ()<Left>
-  inoremap (<CR> (<CR>)<Esc>O
-  inoremap (( (
-  inoremap () ()
-  inoremap <expr> )
-        \ strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")"
-
-  inoremap < <><Left>
-  inoremap << <
-  inoremap <expr> >
-        \ strpart(getline('.'), col('.')-1, 1) == ">" ? "\<Right>" : ">"
-
-  inoremap [ []<Left>
-  inoremap [<CR> [<CR>]<Esc>O
-  inoremap [[ [
-  inoremap [] []
-  inoremap <expr> ]
-        \ strpart(getline('.'), col('.')-1, 1) == "]" ? "\<Right>" : "]"
-
-  inoremap /*<CR> /*<CR>*/<Esc>O
-
-  inoremap <expr> ; index(g:closechars_semicolon_endchars,
-        \ strpart(getline('.'), col('.')-1, 1)) == -1 ? ";" : "\<Right>;"
-
-  inoremap <expr> , closechars#SmartComma()
-
-  inoremap <expr> <BS> closechars#PairDelete() ? "\<Right>\<BS>\<BS>" : "\<BS>"
 endfunction
 
 function! closechars#SmartComma()
@@ -114,33 +69,30 @@ function! closechars#PairMatch(l, r)
 endfunction
 
 function! closechars#UnMap()
-  iunmap '
-  iunmap '<CR>
-  iunmap ''
-  iunmap "
-  iunmap "<CR>
-  iunmap ""
-  iunmap {
-  iunmap {}
-  iunmap {{
-  iunmap {<CR>
-  iunmap }
-  iunmap (
-  iunmap ()
-  iunmap ((
-  iunmap (<CR>
-  iunmap )
-  iunmap [
-  iunmap []
-  iunmap [[
-  iunmap [<CR>
-  iunmap ]
-  iunmap <
-  iunmap <<
-  iunmap >
-  iunmap /*<CR>
-  iunmap ;
-  iunmap ,
+  let c = 0
+  while c < len(g:closechars_lefts)
+    let l = g:closechars_lefts[c]
+    let r = g:closechars_rights[c]
+    exec 'iunmap ' . l . '<CR>'
+    exec 'iunmap ' . l . l
+    exec 'iunmap ' . l
+    if l != r
+      exec 'iunmap ' . l . r
+      exec 'iunmap ' . r
+    endif
+    let c += 1
+  endwhile
+  if len(g:closechars_semicolon_endchars)
+    iunmap ;
+  endif
+
+  if len(g:closechars_comma_endchars)
+    iunmap ,
+  endif
+
+  if g:closechars_pair_delete
+    iunmap <BS>
+  endif
 endfunction
 
-call closechars#AutoMap()
+call closechars#Map()
