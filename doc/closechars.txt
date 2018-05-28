@@ -1,0 +1,109 @@
+*closechars.txt* Automatic paired character closing, smart deletion, etc.
+
+Author: Ivan Greene <https://ivan.sh/>
+License: MIT
+
+INTRODUCTION                                    *closechars*
+
+closechars.vim provides several |insert-mode| mappings for automatically
+closing paired characters such as quotation marks, parentheses, brackets,
+etcetera. It also provides mappings for smart deletion of paired characters
+and smart insertion of commas and semicolons near paired characters.
+|pastetoggle| is a useful setting to be aware of when using this plugin, for
+times when you may want to quickly disable all insert-mode mappings.
+
+MAPPINGS                                        *closechars-mappings*
+
+All of closechars' mappings are under insert-mode. closechars will
+automatically create mappings based on |closechars-settings| described below.
+
+                                                *closechars-pairs*
+
+A set of paired characters which differ, for example, `{` and `}`, will be
+mapped as follows: (The | indicates the cursor placement)
+
+    Typed       Inserted
+    `{           {`|`}`
+    `{{          {`|
+    `{}          {}`|
+    `}`           If the next character on the line is another `}`, the cursor
+                will simply move right without inserting another one.
+                Otherwise, a `}` is inserted.
+    `{`<Enter>    `{`<Enter>|<Enter>`}`
+
+                                                *closechars-quotes*
+
+For a set of paired characters whose left and right sides are identical, such
+as `'` or `"`, some mappings are slightly different:
+
+    Typed       Inserted
+    `"           "`|`"`
+    `""          "`
+    `"`<Enter>    `"`<Enter>|<Enter>`"`
+
+                                                *closechars-semicolon* *i_;*
+                                                *closechars-comma* *i_,*
+
+If smart semicolon and comma handling is enabled, the following mappings will
+be applied:
+
+    Typed       Inserted
+    `;`           If the next character on the line is in the list
+                |g:closechars_semicolon_endchars|, the cursor will move to the
+                right and insert a semicolon after that character. Otherwise,
+                a semicolon will be inserted normally.
+    `;;`          A semicolon will be inserted normally.
+    `,`           If the next character on the line is in the list
+                |g:closechars_comma_endchars|, the cursor will move to the
+                right, insert a comma, a space, and then another of the
+                matching character. For example, typing a comma before a `'`
+                will move to the right and insert `, '`|`'` (the cursor is now
+                at the |). Otherwise, a comma will be inserted normally.
+    `,,`          A comma will be inserted normally.
+
+Setting either of these lists to an empty list disables that character's mappings.
+
+                                                *closechars-delete*
+                                                *closechars-backspace*
+                                                *i_<BS>*
+
+If |g:closechars_pair_delete| is not set to `0`, pressing backspace in insert
+mode will delete both sides of a pair of characters. For example, if the
+cursor is |, pressing backspace will delete both `(` and `)`: `(`|`)`
+
+SETTINGS                                        *closechars-settings*
+
+closechars automatically creates mappings based on a few |g:| variables
+described here.
+
+                                                *g:closechars_lefts*
+
+A list of the left sides of characters to use for mappings. Default is
+`["'", '"', '[', '{', '<', '(']` . Set to an empty list to disable the pair
+mappings. This list must be the same length, and in the same respective order
+as |g:closechars_rights|.
+
+                                                *g:closechars_rights*
+
+A list of the right sides of characters to use for mappings. Default is
+`["'", '"', ']', '}', '>', ')']` . This list must be the same length, and in
+the same respective order as |g:closechars_lefts|. If a character has the same
+left and right side, duplicate it in both lists to indicate that.
+
+                                                *g:closechars_semicolon_endchars*
+
+A list of characters that will be used in the mapping described in
+|closechars-semicolon|. Default is `["'", '"', ']', '}', '>', ')']` (same as
+|g:closechars_right|). Set to an empty list to disable the semicolon mappings.
+
+                                                *g:closechars_comma_endchars*
+
+A list of characters that will be used in the mapping described in
+|closechars-comma|. Default is `["'", '"']` . Set to an empty list to disable
+the comma mappings.
+
+                                                *g:closechars_pair_delete*
+
+Set to `0` to disable mapping of backspace in insert mode. Default is `1`.
+
+ vim:tw=78:et:ft=help:norl:
