@@ -28,10 +28,12 @@ function! closechars#Map()
   if len(g:closechars_semicolon_endchars)
     inoremap <expr> ; index(g:closechars_semicolon_endchars,
           \ strpart(getline('.'), col('.')-1, 1)) == -1 ? ";" : "\<Right>;"
+    inoremap ;; ;
   endif
 
   if len(g:closechars_comma_endchars)
     inoremap <expr> , closechars#SmartComma()
+    inoremap ,, ,
   endif
 
   if g:closechars_pair_delete
@@ -84,10 +86,12 @@ function! closechars#UnMap()
   endwhile
   if len(g:closechars_semicolon_endchars)
     iunmap ;
+    iunmap ;;
   endif
 
   if len(g:closechars_comma_endchars)
     iunmap ,
+    iunmap ,,
   endif
 
   if g:closechars_pair_delete
