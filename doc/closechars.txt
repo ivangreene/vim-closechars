@@ -2,7 +2,7 @@
 
 Author: Ivan Greene <https://ivan.sh/>
 License: MIT
-Version: v0.1.0
+Version: v0.1.1
 
 INTRODUCTION                                    *closechars*
 
@@ -55,11 +55,16 @@ be applied:
                 a semicolon will be inserted normally.
     `;;`          A semicolon will be inserted normally.
     `,`           If the next character on the line is in the list
-                |g:closechars_comma_endchars|, the cursor will move to the
-                right, insert a comma, a space, and then another of the
-                matching character. For example, typing a comma before a `'`
-                will move to the right and insert `, '`|`'` (the cursor is now
-                at the |). Otherwise, a comma will be inserted normally.
+                |g:closechars_comma_endchars|, and the character after that is
+                in |g:closechars_comma_afterchars| (or that list is empty),
+                the cursor will move to the right, insert a comma, a space,
+                and then another of the matching character. For example,
+                typing a comma before a `'` will move to the right and insert
+                `, '`|`'` (the cursor is now at the |). Otherwise, if the next
+                character on the line is in the list
+                |g:closechars_comma_afterchars|, the cursor will simply move to
+                the right and insert a comma (same behavior as the semicolon
+                mapping). Otherwise, a comma will be inserted normally.
     `,,`          A comma will be inserted normally.
 
 Setting either of these lists to an empty list disables that character's mappings.
@@ -102,6 +107,12 @@ A list of characters that will be used in the mapping described in
 A list of characters that will be used in the mapping described in
 |closechars-comma|. Default is `["'", '"']` . Set to an empty list to disable
 the comma mappings.
+
+                                                *g:closechars_comma_afterchars*
+
+A list of characters that will be used in the mapping described in
+|closechars-comma|. Default is `[']', ')']` . Set to an empty list to enable
+the more complex comma insertion for any trailing character.
 
                                                 *g:closechars_pair_delete*
 

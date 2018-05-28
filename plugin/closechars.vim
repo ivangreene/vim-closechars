@@ -1,9 +1,12 @@
 " closechars: automatically close paired characters in insert mode
-" v0.1.0
-" 2018 May 28
+" Author: Ivan Greene <https://ivan.sh/>
+" License: MIT
+" Version: v0.1.1
+" Last Modified: 2018 May 28
 
 let g:closechars_semicolon_endchars = get(g:, 'closechars_semicolon_endchars', ["'", '"', ']', '}', '>', ')'])
 let g:closechars_comma_endchars = get(g:, 'closechars_comma_endchars', ["'", '"'])
+let g:closechars_comma_afterchars = get(g:, 'closechars_comma_afterchars', [']', ')'])
 let g:closechars_lefts = get(g:, 'closechars_lefts', ["'", '"', '[', '{', '<', '('])
 let g:closechars_rights = get(g:, 'closechars_rights', ["'", '"', ']', '}', '>', ')'])
 let g:closechars_pair_delete = get(g:, 'closechars_pair_delete', 1)
@@ -53,10 +56,15 @@ endfunction
 
 function! closechars#SmartComma()
   let l:ch = strpart(getline('.'), col('.')-1, 1)
-  if index(g:closechars_comma_endchars, l:ch) == -1
-    return ","
-  else
+  let l:after = strpart(getline('.'), col('.'), 1)
+  let l:ok = index(g:closechars_comma_endchars, l:ch) != -1
+  if l:ok && index(g:closechars_comma_afterchars, l:after) != -1
+        \ || !len(g:closechars_comma_afterchars)
     return "\<Right>, " . l:ch . l:ch . "\<Left>"
+  elseif l:ok
+    return "\<Right>,"
+  else
+    return ","
   endif
 endfunction
 
