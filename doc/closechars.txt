@@ -2,6 +2,7 @@
 
 Author: Ivan Greene <https://ivan.sh/>
 License: MIT
+Version: v0.1.0
 
 INTRODUCTION                                    *closechars*
 

@@ -1,4 +1,6 @@
 " closechars: automatically close paired characters in insert mode
+" v0.1.0
+" 2018 May 28
 
 let g:closechars_semicolon_endchars = get(g:, 'closechars_semicolon_endchars', ["'", '"', ']', '}', '>', ')'])
 let g:closechars_comma_endchars = get(g:, 'closechars_comma_endchars', ["'", '"'])
